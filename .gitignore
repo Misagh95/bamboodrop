@@ -1,0 +1,13 @@
+node_modules/
+.vercel/
+*.log
+.DS_Store
+Thumbs.db
+
+# محرمانه — هرگز commit نشود
+.env
+.env.*
+!.env.example
+
+# پوشه منبع پک استیکر (نسخه‌ی سبک در public/stickers است)
+telegram_moustache_sticker_pack_V2_FINAL/

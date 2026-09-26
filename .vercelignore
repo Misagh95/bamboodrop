@@ -1,0 +1,17 @@
+node_modules
+.git
+.vercel
+*.log
+README.md
+
+# محرمانه
+.env
+.env.*
+
+# فقط برای توسعه‌ی محلی
+test-subscribe.js
+mock-upstash.js
+check-upstash.js
+
+# نسخه‌ی سنگین پک استیکر (نسخه‌ی سبک در public/stickers است)
+telegram_moustache_sticker_pack_V2_FINAL

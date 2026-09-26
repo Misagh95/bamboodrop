@@ -1,0 +1,16 @@
+{
+  "name": "bamboodrop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BambooDrop — landing site with live Telegram channel data",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "node test-subscribe.js",
+    "check": "node check-upstash.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

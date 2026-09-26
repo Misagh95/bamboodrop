@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>بامبو دراپ | BambooDrop — ایردراپ‌های تازه</title>
+<meta name="description" content="بامبو دراپ | اینجا با هم جدیدترین ایردراپ‌ها رو میزنیم. کانال تلگرام، گروه گفتگو و ایردراپ‌های فعال." />
+<meta property="og:title" content="بامبو دراپ | BambooDrop" />
+<meta property="og:description" content="اینجا با هم جدیدترین ایردراپ‌ها رو میزنیم" />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Estedad:wght@300;400;500;600;700;800;900&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<header class="nav" id="nav">
+  <div class="container nav__inner">
+    <a class="logo" href="#top">
+      <span class="logo__leaf">🪂</span>
+      <span class="logo__text">بامبو<em>دراپ</em></span>
+    </a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#drops">ایردراپ‌ها</a>
+      <a href="#feed">آخرین پیام‌ها</a>
+      <a href="#how">چطور کار می‌کنه</a>
+      <a href="#faq">سوالات</a>
+      <a href="#join">عضویت</a>
+      <a class="btn btn--sm" href="https://t.me/Bamboodrop" target="_blank" rel="noopener">ورود به کانال</a>
+    </nav>
+    <button class="nav__burger" id="burger" aria-label="منو">☰</button>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="hero__glow"></div>
+  <div class="container hero__inner">
+    <span class="pill">🪂 ایردراپ‌های تازه، هر هفته</span>
+    <h1 class="hero__title">
+      اینجا با هم <span class="grad">جدیدترین ایردراپ‌ها</span> رو میزنیم
+    </h1>
+    <p class="hero__sub">
+      بامبو دراپ یک کانال و گروه تلگرامیه برای پیدا کردن و انجام ایردراپ‌های جدید،
+      همراه با راهنمایی و پشتیبانی تا آخر مسیر. بدون هیاهو، فقط نتیجه.
+    </p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="https://t.me/Bamboodrop" target="_blank" rel="noopener">عضویت در کانال</a>
+      <a class="btn btn--ghost" href="https://t.me/Bamboodropgroup" target="_blank" rel="noopener">ورود به گروه گفتگو</a>
+    </div>
+    <div class="hero__stats">
+      <div class="stat"><b id="statSubs">—</b><span>عضو کانال</span></div>
+      <div class="stat"><b id="statMembers">—</b><span>عضو گروه</span></div>
+      <div class="stat"><b id="statOnline">—</b><span>آنلاین</span></div>
+    </div>
+    <p class="live"><span class="dot"></span> داده‌ها مستقیم از تلگرام — آخرین به‌روزرسانی: <span id="updatedAt">…</span></p>
+  </div>
+  <div class="hero__bamboo" aria-hidden="true"></div>
+</section>
+
+<!-- ===== DROPS ===== -->
+<section class="section" id="drops">
+  <div class="container">
+    <span class="eyebrow">AIRDROP BOARD</span>
+    <h2 class="section__title">ایردراپ‌های اخیر</h2>
+    <p class="section__lead">هر ایردراپ قبل از انتشار، فیلتر می‌شه؛ فقط مواردی که ارزش وقت گذاشتن دارن.</p>
+    <div class="grid" id="dropGrid">
+      <!-- آیتم‌ها با JS رندر می‌شن -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEED / CHAT ===== -->
+<section class="section" id="feed">
+  <div class="container">
+    <span class="eyebrow">LIVE CHAT <i class="feed__badge" id="newBadge">پیام جدید</i></span>
+    <h2 class="section__title">گفتگوی کانال</h2>
+    <p class="section__lead">همان پیام‌هایی که در کانال می‌بینید، اینجا هم زنده می‌شود.</p>
+    <div class="chat" id="feedList">
+      <div class="chat__load"><span class="chat__spin"></span> در حال دریافت پیام‌ها…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== JOIN + NEWSLETTER ===== -->
+<section class="section section--alt" id="join">
+  <div class="container narrow" style="text-align:center">
+    <span class="eyebrow">STAY UPDATED</span>
+    <h2 class="section__title">ایردراپ جدید رو از دست نده</h2>
+    <p class="section__lead">ایمیلت رو بذار تا هر ایردراپ تازه، همون لحظه برات ایمیل بشه.</p>
+
+    <form class="sub" id="subForm" novalidate>
+      <div class="sub__row">
+        <input class="sub__input" type="email" id="subEmail" name="email"
+               placeholder="ایمیل شما" required autocomplete="email" dir="ltr" />
+        <button class="btn btn--primary sub__btn" type="submit" id="subBtn">ثبت‌نام</button>
+      </div>
+      <p class="sub__msg" id="subMsg" role="status"></p>
+      <p class="sub__count" id="subCountWrap">
+        <span id="subCount">۰</span> نفر از ایمیل‌های ایردراپ استفاده می‌کنند
+      </p>
+      <p class="sub__note">بدون اسپم. هر زمان بخواهی یک کلیک لغو اشتراک.</p>
+    </form>
+
+    <div class="share">
+      <button class="btn btn--ghost" id="shareBtn" type="button">🔗 اشتراک‌گذاری سایت</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW ===== -->
+<section class="section section--alt" id="how">
+  <div class="container">
+    <span class="eyebrow">HOW IT WORKS</span>
+    <h2 class="section__title">چطور کار می‌کنه؟</h2>
+    <div class="steps">
+      <div class="step"><i>۱</i><h3>عضویت</h3><p>از کانال و گروه تلگرام بامبو دراپ عضو شو. بدون نیاز به ثبت‌نام.</p></div>
+      <div class="step"><i>۲</i><h3>اطلاع از ایردراپ‌ها</h3><p>لینک پروژه، شرایط و زمان‌بندی رو به‌محض انتشار در کانال دریافت می‌کنی.</p></div>
+      <div class="step"><i>۳</i><h3>انجام و پشتیبانی</h3><p>سؤالت رو توی گروه بپرس؛ ادمین و بقیه اعضا راهنمایی می‌کنن.</p></div>
+    </div>
+    <blockquote class="quote">«اولین قانون خوشبختی، کم توقع بودنه.»</blockquote>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section" id="faq">
+  <div class="container narrow">
+    <span class="eyebrow">FAQ</span>
+    <h2 class="section__title">سوالات پرتکرار</h2>
+    <div class="faq" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ===== JOIN / TG LINKS ===== -->
+<section class="cta">
+  <div class="container cta__inner">
+    <h2>همین الان شروع کن</h2>
+    <p>کانال برای اطلاع‌رسانی، گروه برای گفتگو و پشتیبانی.</p>
+    <div class="cta__links">
+      <a class="btn btn--light" href="https://t.me/Bamboodrop" target="_blank" rel="noopener">کانال: @Bamboodrop</a>
+      <a class="btn btn--outline" href="https://t.me/Bamboodropgroup" target="_blank" rel="noopener">گروه: @Bamboodropgroup</a>
+      <a class="btn btn--outline" href="https://t.me/Bamboodrop00" target="_blank" rel="noopener">ادمین</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer__inner">
+    <p>© <span id="year"></span> بامبو دراپ — سایت رسمی نیست؛ وابسته به کانال تلگرام.</p>
+    <p class="footer__warn">ایردراپ‌ها ریسک مالی دارند. مسئولیت هر اقدام با خودتان است.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
