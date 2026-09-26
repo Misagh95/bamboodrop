@@ -1,6 +1,6 @@
 import { getData } from '../lib/telegram.js';
 
-export const config = { runtime: 'nodejs18.x', maxDuration: 10 };
+export const config = { runtime: 'nodejs', maxDuration: 10 };
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

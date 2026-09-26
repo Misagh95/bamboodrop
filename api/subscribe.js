@@ -1,6 +1,6 @@
 import { addEmail, count, isConfigured } from '../lib/store.js';
 
-export const config = { runtime: 'nodejs18.x', maxDuration: 10 };
+export const config = { runtime: 'nodejs', maxDuration: 10 };
 
 const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"\s]+\.[^\s@<>()[\]\\,;:"\s]{2,}$/;
 
