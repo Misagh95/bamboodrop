@@ -13,7 +13,82 @@ function timeAgo(iso) {
   return fa.format(-Math.round(s / 86400), 'day');
 }
 
+/* ---------- کارت پروژه‌ها (بر اساس هشتگ) ---------- */
+
 const el = (id) => document.getElementById(id);
+const projGrid = el('projectGrid');
+const tagsFilter = el('tagsFilter');
+let activeTag = null;
+let allProjects = [];
+
+function projectHTML(p) {
+  const extras = p.count - 1;   // پست اول در عنوان است
+  return `<article class="pcard">
+    <div class="pcard__head">
+      <a class="pcard__tag" href="#projects" data-tag="${esc(p.slug)}">#${esc(p.tag)}</a>
+      <div class="pcard__badges">
+        ${p.drops > 0 ? `<span class="badge badge--new">ایردراپ فعال</span>` : ''}
+        <span class="pcard__count">${p.count.toLocaleString('fa-IR')} پست</span>
+      </div>
+    </div>
+    <p class="pcard__title">${esc(p.title)}</p>
+    <div class="pcard__meta">
+      <span>آخرین: ${timeAgo(p.latest)}</span>
+    </div>
+    ${extras > 0 ? `<button class="pcard__toggle" type="button" data-tag="${esc(p.slug)}">
+        ${extras.toLocaleString('fa-IR')} پیام دیگر <span class="pcard__chev">⌄</span>
+      </button>` : ''}
+    <ul class="pcard__more" hidden>
+      ${p.posts.slice(1).map(x => `<li>
+        <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.text.replace(/\s+/g, ' ').slice(0, 90))}</a>
+        <span>${timeAgo(x.date)}</span>
+      </li>`).join('')}
+    </ul>
+    <a class="card__cta" href="${esc(p.link)}" target="_blank" rel="noopener nofollow">مشاهده پروژه ←</a>
+  </article>`;
+}
+
+function renderProjects(projects) {
+  if (!projects?.length) {
+    projGrid.innerHTML = '<p class="empty">هنوز پروژه‌ای با هشتگ پیدا نشد.</p>';
+    tagsFilter.innerHTML = '';
+    return;
+  }
+  projGrid.innerHTML = projects.map(projectHTML).join('');
+
+  tagsFilter.innerHTML = `<button class="tfilter is-active" data-tag="">همه (${projects.length})</button>`
+    + projects.map(p => `<button class="tfilter" data-tag="${esc(p.slug)}">#${esc(p.tag)}</button>`).join('');
+
+  document.querySelectorAll('.card').forEach(n => io.observe(n));
+}
+
+// باز/بسته کردن پیام‌های هر پروژه
+projGrid.addEventListener('click', (e) => {
+  const btn = e.target.closest('.pcard__toggle');
+  if (!btn) return;
+  const list = btn.nextElementSibling;
+  const open = list.hasAttribute('hidden');
+  list.toggleAttribute('hidden', !open);
+  btn.classList.toggle('is-open', open);
+});
+
+// فیلتر بر اساس هشتگ
+tagsFilter.addEventListener('click', (e) => {
+  const btn = e.target.closest('.tfilter');
+  if (!btn) return;
+  activeTag = btn.dataset.tag || null;
+  document.querySelectorAll('.tfilter').forEach(b => b.classList.toggle('is-active', b === btn));
+  applyFilter();
+});
+
+function applyFilter() {
+  const list = activeTag ? allProjects.filter(p => p.slug === activeTag) : allProjects;
+  projGrid.innerHTML = list.map(projectHTML).join('');
+    if (activeTag) {
+    const first = projGrid.querySelector('.pcard');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
 const grid = el('dropGrid');
 const feedList = el('feedList');
 const faqList = el('faqList');
@@ -190,6 +265,9 @@ async function load() {
       : '<p class="empty">در حال حاضر ایردراپ فعالی ثبت نشده. کانال را دنبال کنید.</p>';
 
     renderFeed(d.posts);
+
+    allProjects = d.projects || [];
+    renderProjects(allProjects);
 
     document.querySelectorAll('.card, .step, .faq__item').forEach(n => io.observe(n));
   } catch (e) {

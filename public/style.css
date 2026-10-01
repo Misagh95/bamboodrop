@@ -362,6 +362,10 @@ b,strong,.stat b{font-variant-numeric:tabular-nums}
   .sub__row{flex-direction:column;border-radius:22px;padding:10px}
   .sub__btn{width:100%}
   .sub__input{text-align:center}
+  .tags-filter{gap:6px;margin-bottom:26px}
+  .tfilter{font-size:.78rem;padding:5px 12px}
+  .pcard__head{flex-direction:column;align-items:flex-start;gap:8px}
+  .pcard__more{max-height:220px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
