@@ -23,19 +23,23 @@ let allProjects = [];
 
 function projectHTML(p) {
   const extras = p.count - 1;   // پست اول در عنوان است
-  return `<article class="pcard">
+  const ended = p.status === 'ended';
+  const badges = [
+    ended ? '<span class="badge badge--ended">تست‌نت تمام شد</span>'
+          : (p.drops > 0 ? '<span class="badge badge--new">ایردراپ فعال</span>'
+                         : '<span class="badge badge--ok">فعال</span>'),
+    `<span class="pcard__count">${p.count.toLocaleString('fa-IR')} پست</span>`
+  ].join('');
+
+  return `<article class="pcard${ended ? ' is-ended' : ''}">
     <div class="pcard__head">
       <a class="pcard__tag" href="#projects" data-tag="${esc(p.slug)}">#${esc(p.tag)}</a>
-      <div class="pcard__badges">
-        ${p.drops > 0 ? `<span class="badge badge--new">ایردراپ فعال</span>` : ''}
-        <span class="pcard__count">${p.count.toLocaleString('fa-IR')} پست</span>
-      </div>
+      <div class="pcard__badges">${badges}</div>
     </div>
     <p class="pcard__title">${esc(p.title)}</p>
-    <div class="pcard__meta">
-      <span>آخرین: ${timeAgo(p.latest)}</span>
-    </div>
-    ${extras > 0 ? `<button class="pcard__toggle" type="button" data-tag="${esc(p.slug)}">
+    ${p.latest ? `<div class="pcard__meta"><span>آخرین: ${timeAgo(p.latest)}</span></div>`
+               : `<div class="pcard__meta"><span>هنوز پیامی ثبت نشده</span></div>`}
+    ${extras > 0 ? `<button class="pcard__toggle" type="button">
         ${extras.toLocaleString('fa-IR')} پیام دیگر <span class="pcard__chev">⌄</span>
       </button>` : ''}
     <ul class="pcard__more" hidden>
@@ -44,7 +48,9 @@ function projectHTML(p) {
         <span>${timeAgo(x.date)}</span>
       </li>`).join('')}
     </ul>
-    <a class="card__cta" href="${esc(p.link)}" target="_blank" rel="noopener nofollow">مشاهده پروژه ←</a>
+    <a class="card__cta" href="${esc(p.link)}" target="_blank" rel="noopener nofollow">
+      ${ended ? 'مشاهده آرشیو کانال ←' : 'مشاهده پروژه ←'}
+    </a>
   </article>`;
 }
 
@@ -57,7 +63,7 @@ function renderProjects(projects) {
   projGrid.innerHTML = projects.map(projectHTML).join('');
 
   tagsFilter.innerHTML = `<button class="tfilter is-active" data-tag="">همه (${projects.length})</button>`
-    + projects.map(p => `<button class="tfilter" data-tag="${esc(p.slug)}">#${esc(p.tag)}</button>`).join('');
+    + projects.map(p => `<button class="tfilter${p.status === 'ended' ? ' is-ended' : ''}" data-tag="${esc(p.slug)}">#${esc(p.tag)}</button>`).join('');
 
   document.querySelectorAll('.card').forEach(n => io.observe(n));
 }
