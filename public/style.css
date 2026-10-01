@@ -380,6 +380,14 @@ b,strong,.stat b{font-variant-numeric:tabular-nums}
 .pcard__cta span{transition:transform .3s var(--ease)}
 .pcard__cta:hover span{transform:translateX(-4px)}
 
+/* پست تازه */
+.pcard.has-new{border-color:rgba(46,230,160,.5);box-shadow:0 0 0 1px rgba(46,230,160,.2),0 18px 40px -22px rgba(46,230,160,.6)}
+.pcard__head.has-new{background:linear-gradient(180deg,rgba(46,230,160,.18),transparent)}
+.pcard.has-new .pcard__head::after{content:'پست جدید';margin-inline-start:auto;padding:2px 9px;border-radius:100px;
+  background:var(--jade);color:#02130c;font-size:.65rem;font-weight:700;white-space:nowrap;
+  animation:pop .4s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+
 /* تمام‌شده */
 .badge--ended{background:rgba(255,138,138,.12);color:#ffb3b3;border:1px solid rgba(255,138,138,.28)}
 .pcard.is-ended{opacity:.75}

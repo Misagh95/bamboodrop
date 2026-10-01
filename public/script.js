@@ -20,7 +20,9 @@ const projGrid = el('projectGrid');
 const tagsFilter = el('tagsFilter');
 let activeTag = null;
 let allProjects = [];
+let firstPaint = true;
 const openTags = new Set();   // کارت‌هایی که کاربر باز کرده
+const seenPostIds = new Set(); // برای تشخیص پست تازه
 
 const POSTS_PER_CARD = 4;
 
@@ -44,7 +46,7 @@ function projectHTML(p) {
     : (p.drops > 0 ? '<span class="badge badge--new">ایردراپ فعال</span>'
                    : '<span class="badge badge--ok">فعال</span>');
 
-  return `<article class="pcard${ended ? ' is-ended' : ''}" data-slug="${esc(p.slug)}">
+  return `<article class="pcard${ended ? ' is-ended' : ''}" data-slug="${esc(p.slug)}" data-sig="${esc(projectSignature(p))}">
     <header class="pcard__head">
       <a class="pcard__tag" href="#projects">#${esc(p.tag)}</a>
       <div class="pcard__head-meta">
@@ -74,18 +76,81 @@ function projectHTML(p) {
   </article>`;
 }
 
-function renderProjects(projects) {
+// فقط کارت‌هایی که واقعاً تغییر کرده‌اند دوباره رندر می‌شوند
+// تا کارت‌های باز و اسکرول کاربر دست‌نخورده بمانند
+function projectSignature(p) {
+  return `${p.slug}|${p.count}|${p.drops}|${p.status}`;
+}
+
+function renderProjects(projects, isRefresh) {
   if (!projects?.length) {
     projGrid.innerHTML = '<p class="empty">هنوز پروژه‌ای با هشتگ پیدا نشد.</p>';
     tagsFilter.innerHTML = '';
     return;
   }
+
+  if (isRefresh) {
+    // حالت تازه‌سازی: فقط کارت‌های تغییرکرده را عوض کن
+    const existing = new Map(
+      [...projGrid.querySelectorAll('.pcard')].map(c => [c.dataset.slug, c])
+    );
+    let touched = 0;
+    for (const p of projects) {
+      const card = existing.get(p.slug);
+      if (!card) continue;
+      if (card.dataset.sig !== projectSignature(p)) {
+        card.outerHTML = projectHTML(p);
+        touched++;
+      }
+    }
+    // کارت‌های جدید (پروژه‌ی تازه) اضافه می‌شوند
+    const known = new Set(projects.map(p => p.slug));
+    const added = projects.filter(p => !existing.has(p.slug));
+    if (added.length) {
+      projGrid.insertAdjacentHTML('beforeend', added.map(projectHTML).join(''));
+    }
+    // کارت‌هایی که دیگر وجود ندارند حذف می‌شوند
+    for (const [slug, card] of existing) {
+      if (!known.has(slug)) card.remove();
+    }
+    if (touched || added.length) markNewCards(projects);
+    return;
+  }
+
+  // رندر اولیه
   projGrid.innerHTML = projects.map(projectHTML).join('');
 
   tagsFilter.innerHTML = `<button class="tfilter is-active" data-tag="">همه (${projects.length})</button>`
     + projects.map(p => `<button class="tfilter${p.status === 'ended' ? ' is-ended' : ''}" data-tag="${esc(p.slug)}">#${esc(p.tag)}</button>`).join('');
 
+  markNewCards(projects);
   document.querySelectorAll('.card').forEach(n => io.observe(n));
+}
+
+// پست تازه = پستی که در بار اول ندیده بودیم
+function markNewCards(projects) {
+  let fresh = 0;
+  for (const p of projects) {
+    for (const x of p.posts) {
+      x.justNew = !seenPostIds.has(x.id);
+      if (x.justNew) { seenPostIds.add(x.id); fresh++; }
+    }
+  }
+  // بار اول: همه‌چیز «تازه» است ولی نباید هایلایت شود
+  if (firstPaint) { firstPaint = false; return; }
+  if (!fresh) return;
+
+  for (const p of projects) {
+    const card = projGrid.querySelector(`.pcard[data-slug="${CSS.escape(p.slug)}"]`);
+    const hasNewPost = p.posts.some(x => x.justNew);
+    if (!card || !hasNewPost) continue;
+    card.classList.add('has-new');
+    card.querySelector('.pcard__head')?.classList.add('has-new');
+    setTimeout(() => {
+      card.classList.remove('has-new');
+      card.querySelector('.pcard__head')?.classList.remove('has-new');
+    }, 12000);
+  }
 }
 
 // باز/بسته کردن پیام‌های هر کارت
@@ -310,7 +375,8 @@ async function load() {
     renderFeed(d.posts);
 
     allProjects = d.projects || [];
-    renderProjects(allProjects);
+    // بار اول کامل رندر می‌شود، بعد فقط تغییرات
+    renderProjects(allProjects, firstPaint ? false : true);
 
     document.querySelectorAll('.card, .step, .faq__item').forEach(n => io.observe(n));
   } catch (e) {
