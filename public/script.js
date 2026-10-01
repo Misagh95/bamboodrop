@@ -13,43 +13,63 @@ function timeAgo(iso) {
   return fa.format(-Math.round(s / 86400), 'day');
 }
 
-/* ---------- کارت پروژه‌ها (بر اساس هشتگ) ---------- */
+/* ---------- کارت پروژه‌ها: هدر = هشتگ، پست‌ها زیرش ---------- */
 
 const el = (id) => document.getElementById(id);
 const projGrid = el('projectGrid');
 const tagsFilter = el('tagsFilter');
 let activeTag = null;
 let allProjects = [];
+const openTags = new Set();   // کارت‌هایی که کاربر باز کرده
+
+const POSTS_PER_CARD = 4;
+
+function postLine(x) {
+  const t = (x.text || '').replace(/\s+/g, ' ').trim();
+  const body = t.length > 110 ? t.slice(0, 110) + '…' : t;
+  return `<li class="pline">
+    <a class="pline__text" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(body)}</a>
+    <span class="pline__meta">${timeAgo(x.date)}${x.views ? ` · 👁 ${esc(x.views)}` : ''}</span>
+  </li>`;
+}
 
 function projectHTML(p) {
-  const extras = p.count - 1;   // پست اول در عنوان است
   const ended = p.status === 'ended';
-  const badges = [
-    ended ? '<span class="badge badge--ended">تست‌نت تمام شد</span>'
-          : (p.drops > 0 ? '<span class="badge badge--new">ایردراپ فعال</span>'
-                         : '<span class="badge badge--ok">فعال</span>'),
-    `<span class="pcard__count">${p.count.toLocaleString('fa-IR')} پست</span>`
-  ].join('');
+  const isOpen = openTags.has(p.slug);
+  const shown = isOpen ? p.posts : p.posts.slice(0, POSTS_PER_CARD);
+  const hidden = p.count - shown.length;
 
-  return `<article class="pcard${ended ? ' is-ended' : ''}">
-    <div class="pcard__head">
-      <a class="pcard__tag" href="#projects" data-tag="${esc(p.slug)}">#${esc(p.tag)}</a>
-      <div class="pcard__badges">${badges}</div>
+  const status = ended
+    ? '<span class="badge badge--ended">تست‌نت تمام شد</span>'
+    : (p.drops > 0 ? '<span class="badge badge--new">ایردراپ فعال</span>'
+                   : '<span class="badge badge--ok">فعال</span>');
+
+  return `<article class="pcard${ended ? ' is-ended' : ''}" data-slug="${esc(p.slug)}">
+    <header class="pcard__head">
+      <a class="pcard__tag" href="#projects">#${esc(p.tag)}</a>
+      <div class="pcard__head-meta">
+        ${status}
+        <span class="pcard__count">${p.count.toLocaleString('fa-IR')} پست</span>
+      </div>
+    </header>
+
+    <div class="pcard__posts">
+      ${p.count === 0
+        ? '<p class="pcard__none">هنوز پیامی برای این پروژه ثبت نشده</p>'
+        : shown.map(postLine).join('')}
     </div>
-    <p class="pcard__title">${esc(p.title)}</p>
-    ${p.latest ? `<div class="pcard__meta"><span>آخرین: ${timeAgo(p.latest)}</span></div>`
-               : `<div class="pcard__meta"><span>هنوز پیامی ثبت نشده</span></div>`}
-    ${extras > 0 ? `<button class="pcard__toggle" type="button">
-        ${extras.toLocaleString('fa-IR')} پیام دیگر <span class="pcard__chev">⌄</span>
-      </button>` : ''}
-    <ul class="pcard__more" hidden>
-      ${p.posts.slice(1).map(x => `<li>
-        <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.text.replace(/\s+/g, ' ').slice(0, 90))}</a>
-        <span>${timeAgo(x.date)}</span>
-      </li>`).join('')}
-    </ul>
-    <a class="card__cta" href="${esc(p.link)}" target="_blank" rel="noopener nofollow">
-      ${ended ? 'مشاهده آرشیو کانال ←' : 'مشاهده پروژه ←'}
+
+    ${hidden > 0 || isOpen
+      ? `<button class="pcard__more-btn" type="button">
+           ${isOpen
+             ? 'بستن'
+             : `نمایش ${Math.min(hidden, 30).toLocaleString('fa-IR')} پست دیگر`}
+           <span class="pcard__chev">⌄</span>
+         </button>`
+      : ''}
+
+    <a class="pcard__cta" href="${esc(p.link)}" target="_blank" rel="noopener nofollow">
+      ${ended ? 'مشاهده آرشیو کانال' : 'مشاهده پروژه'} <span>←</span>
     </a>
   </article>`;
 }
@@ -68,14 +88,30 @@ function renderProjects(projects) {
   document.querySelectorAll('.card').forEach(n => io.observe(n));
 }
 
-// باز/بسته کردن پیام‌های هر پروژه
+// باز/بسته کردن پیام‌های هر کارت
 projGrid.addEventListener('click', (e) => {
-  const btn = e.target.closest('.pcard__toggle');
+  const btn = e.target.closest('.pcard__more-btn');
   if (!btn) return;
-  const list = btn.nextElementSibling;
-  const open = list.hasAttribute('hidden');
-  list.toggleAttribute('hidden', !open);
-  btn.classList.toggle('is-open', open);
+  const slug = btn.closest('.pcard')?.dataset.slug;
+  if (!slug) return;
+
+  if (openTags.has(slug)) openTags.delete(slug);
+  else openTags.add(slug);
+
+  const p = allProjects.find(x => x.slug === slug);
+  if (!p) return;
+  // فقط همان کارت را دوباره رندر می‌کنیم
+  const card = projGrid.querySelector(`.pcard[data-slug="${CSS.escape(slug)}"]`);
+  if (card) card.outerHTML = projectHTML(p);
+});
+
+// کلیک روی هشتگ = فیلتر همان پروژه
+projGrid.addEventListener('click', (e) => {
+  const tag = e.target.closest('.pcard__tag');
+  if (!tag) return;
+  const slug = tag.closest('.pcard')?.dataset.slug;
+  const btn = tagsFilter.querySelector(`.tfilter[data-tag="${CSS.escape(slug || '')}"]`);
+  if (btn) btn.click();
 });
 
 // فیلتر بر اساس هشتگ
@@ -90,11 +126,12 @@ tagsFilter.addEventListener('click', (e) => {
 function applyFilter() {
   const list = activeTag ? allProjects.filter(p => p.slug === activeTag) : allProjects;
   projGrid.innerHTML = list.map(projectHTML).join('');
-    if (activeTag) {
+  if (activeTag) {
     const first = projGrid.querySelector('.pcard');
     if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
+
 const grid = el('dropGrid');
 const feedList = el('feedList');
 const faqList = el('faqList');
